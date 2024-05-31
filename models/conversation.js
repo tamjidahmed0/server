@@ -3,15 +3,7 @@ import mongoose from "mongoose";
 
 
 const conversationSchema = new mongoose.Schema({
-    // name:{
-    //     type:String
-    // },
-    // senderId:{
-    //     type:String
-    // },
-    // receiverId:{
-    //     type:String
-    // }
+
     senderName:{
         type:String
     },
@@ -21,6 +13,10 @@ const conversationSchema = new mongoose.Schema({
     Name:{
         type:String
     },
+    isVerified:{
+        type:Boolean,
+        default:false
+    },
     text:{
         type:String
     },
@@ -28,6 +24,9 @@ const conversationSchema = new mongoose.Schema({
         type:Array
     },
     conversationFor: {
+        type:mongoose.Types.ObjectId
+    },
+    For:{
         type:mongoose.Types.ObjectId
     },
     // userId:{

@@ -12,6 +12,10 @@ const notificationSchema = new mongoose.Schema({
       text: {
         type: String,
       },
+      isVerified:{
+        type:Boolean,
+        default:false
+    },
       date:{
         type:Date,
         default:Date.now

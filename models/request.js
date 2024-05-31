@@ -13,6 +13,10 @@ const requestSchema = new mongoose.Schema({
     Name:{
         type:String
     },
+    isVerified:{
+        type:Boolean,
+        default:false
+    },
     text:{
         type:String
     },

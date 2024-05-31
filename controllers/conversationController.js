@@ -12,7 +12,7 @@ const conversations = async (req, res) => {
 console.log(userId , 'user id')
   try {
     //find conversation in conversationSchema
-    const conversation = await conversationSchema.find({
+    const conversation = await conversationSchema.find({ 
       conversationFor:userId,
     });
 
@@ -53,25 +53,32 @@ console.log(userId , 'user id')
 
         let profiles;
 
-        if (item.members[0] === userId) {
+        if (item.members[0].toString() === userId) {
           profiles = await profileSchema.findOne({
             Id: item.members[1],
           });
+
+
         }
 
-        if (item.members[1] === userId) {
+        if (item.members[1].toString() === userId) {
           profiles = await profileSchema.findOne({
             Id: item.members[0],
           });
         }
 
-        // console.log(profiles.profilePic, 'come from profile')
+      const   profilesdd = await profileSchema.findOne({
+          Id: item.members[1],
+        });
+
+       
 
         const profilePic = profiles ? profiles.profilePic : "";
         // console.log(profiless)
 
         names.push({
           profile: profilePic,
+          verified: item.isVerified,
           name: item.receiverName,
           Id: item.members[1],
           convText: item.text,

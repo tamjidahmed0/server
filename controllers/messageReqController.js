@@ -41,14 +41,16 @@ try {
           };
   
           let profiles;
+
+          console.log(userId, 'jgjg')
   
-          if (item.members[0] === userId) {
+          if (item.members[0].toString() === userId) {
             profiles = await profileSchema.findOne({
               Id: item.members[1],
             });
           }
   
-          if (item.members[1] === userId) {
+          if (item.members[1].toString() === userId) {
             profiles = await profileSchema.findOne({
               Id: item.members[0],
             });
@@ -62,6 +64,7 @@ try {
           names.push({
             profile: profilePic,
             name: item.receiverName,
+            verified:item.isVerified,
             Id: item.members[1],
             convText: item.text,
             date: getFormattedDate(date),

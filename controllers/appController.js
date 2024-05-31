@@ -28,6 +28,9 @@ import moment from 'moment'
 import multer from 'multer';
 
 
+import requestSchema from '../models/request.js'
+import { send } from 'process'
+
 
 
 
@@ -891,7 +894,7 @@ export const getInfo = async(req, res)=>{
 //send msg
 export const message = async(req, res)=> {
   const {senderId, receiverId, text} = req.body
-  // console.log(req.body)
+  console.log(req.body)
 
   const newMessage = new messageSchema({
     senderId,
@@ -1045,84 +1048,460 @@ export const message = async(req, res)=> {
 
 // conversation
 export const getConversationId = async(req, res) =>{
+  // const {authorization, userid} = req.headers
+
+
+
 
   const senderId = req.params.userId
   const receiverId = req.params.receiverId
 
   const { limit, offset } = req.query;
-  
-  try {
-    const messages = await messageSchema.find({
-      $or: [
-        { senderId: senderId, receiverId: receiverId },
-        { senderId: receiverId, receiverId: senderId },
-      ],
 
-    }).sort({date:-1}).skip(parseInt(offset)).limit(limit);
+
+
+  try {
+    const checkIsRequest = await requestSchema.findOne({For:receiverId})
+    const messages = await messageSchema.find({
+
+
+// $or:[
+//   {senderId: { $exists: true }},
+
+// ]
+   
+// senderId
+
+
 
     
+      $or: [
+        { senderId: senderId, receiverId: receiverId },
+        { senderId: receiverId, receiverId:senderId},
+      ],
+
+      // $or: [
+      //   { textFor: senderId, senderId: senderId },
+      //   { textFor:receiverId, receiverId: senderId},
+      // ],
+
+    })
+    .sort({date:-1}).skip(parseInt(offset)).limit(limit);
+
+
+    console.log(messages, 'mes')
+
+
+
+    const msg2 = await messageSchema.find({
+    //   $or:[
+    //   {receiverId}, {senderId}
+    // ]
+   
+
+    receiverId
+  })
+
+
+  let testArray = []
+  let array= []
+
+// console.log(messages, 'messagessssss')
+
+for(const item of messages){
+
+
+
+
+
+
+
+
+
+
+  // console.log(item)
+
+  
+  if(item.senderId.toString() === senderId){
+
+if(item.textFor.toString() === senderId){
+
+
+
+   const user = await userschema.findById(item.senderId)  
+
+
+
+            console.log('sender,,,', item.text)
+      const profPic = await profileSchema.findOne({
+     $or:[
+        {Id:senderId},
+           
+        ]
+     })
+
+
+
+    array.push({messageId:item._id, profile:profPic.profilePic, iSend: item.senderId, name:user.name, text:item.text, type:item.type,})
+
+
+
+ 
+  testArray.push({isend:item.senderId, text : item.text})
+}
+
+
+  }else if(item.senderId.toString() === receiverId){
+    if(item.textFor.toString() === senderId){
+
+
+
+
+      const user = await userschema.findById(item.senderId)  
+       const profPic = await profileSchema.findOne({
+          $or:[
+          {Id:receiverId},
+                   
+              ]
+           })
+        
+        
+           console.log('reciever,,,,', item.text) 
+        array.push({messageId:item._id, profile:profPic.profilePic, whoSend: item.senderId, name:user.name, text:item.text, type:item.type,})
+
+
+
+     
+      testArray.push({whosend:item.senderId, text:item.text })
+      
+    }
+    
+  }
+
+
+
+
+}
+
+console.log(testArray)
+
+
+
+  
+const FormateDate = (dates) =>{
+  
+  const createdAt = moment(dates);
+  const now = moment()
+  const duration = moment.duration(now.diff(createdAt));
+
+  const years = duration.years();
+  const months = duration.months();
+  const days = duration.days();
+
+  const date = moment(dates);
+
+
+  
+
+  const getFormattedDate = (date)=>{
+    if( Math.abs(years) ){
+      return `${date.format('MMM DD YYYY')} AT ${date.format('hh:mm A')} `
+    }
+    else if(Math.abs(months)){
+      return `${date.format('MMM DD')} AT ${date.format('hh:mm A')} `
+    }
+    else if(days){         
+      return `${date.format('ddd')} AT ${date.format('hh:mm A')} `
+    }else {
+      return date.format('hh:mm A')
+    }    
+}
+
+
+
+return getFormattedDate(date)
+
+
+
+}
+
+
+const final = [...messages , ...msg2]
+
+// console.log(final, 'finallll')
+
+
+
+// for(const item of msg2 ){
+
  
 
-   console.log(messages)
+//   console.log(item.text, 'itemtext')
 
 
-    let array= []
+// }
 
-    for(const item of messages){
 
-      const user = await userschema.findById(item.senderId)    
-      const createdAt = moment(item.date);
-      const now = moment()
-      const duration = moment.duration(now.diff(createdAt));
 
-      const years = duration.years();
-      const months = duration.months();
-      const days = duration.days();
 
-      const date = moment(item.date);
-      const getFormattedDate = (date)=>{
-        if( Math.abs(years) ){
-          return `${date.format('MMM DD YYYY')} AT ${date.format('hh:mm A')} `
-        }
-        else if(Math.abs(months)){
-          return `${date.format('MMM DD')} AT ${date.format('hh:mm A')} `
-        }
-        else if(days){         
-          return `${date.format('ddd')} AT ${date.format('hh:mm A')} `
-        }else {
-          return date.format('hh:mm A')
-        }    
-    }
 
-      if(item.senderId === senderId){
-        console.log('sender,,,', item.text)
-        const profPic = await profileSchema.findOne({
-          $or:[
-            {Id:senderId},
+
+
+
+
+
+   
+
+
+ 
+    // for (const item of messages) {
+    //   console.log(item.receiverId, 'item')
+
+      // if(item.senderId.toString() === senderId){
+      //   console.log(item.senderId)
+      //   const user = await userschema.findById(item.senderId)  
+
+
+
+      //           console.log('sender,,,', item.text)
+      //   const profPic = await profileSchema.findOne({
+      //     $or:[
+      //       {Id:senderId},
            
-          ]
-        })
+      //     ]
+      //   })
 
 
 
-        array.push({messageId:item._id, profile:profPic.profilePic, iSend: item.senderId, name:user.name, text:item.text, Date:getFormattedDate(date)})
-      }else if(item.senderId === receiverId){
+      //   array.push({messageId:item._id, profile:profPic.profilePic, iSend: item.senderId, name:user.name, text:item.text, type:item.type,})
 
-        const profPic = await profileSchema.findOne({
-          $or:[
-            {Id:receiverId},
+
+
+
+      // }else if(item.senderId.toString() === receiverId){
+      //   const user = await userschema.findById(item.senderId)  
+      //       const profPic = await profileSchema.findOne({
+      //        $or:[
+      //           {Id:receiverId},
+                   
+      //          ]
+      //       })
+        
+        
+      //      console.log('reciever,,,,', item.text) 
+      //        array.push({messageId:item._id, profile:profPic.profilePic, whoSend: item.senderId, name:user.name, text:item.text, type:item.type,})
+      //        }
+            
+
+      
+
+      // if(item.senderId !== undefined){
+      
+
+
+      //   if(item.senderId.toString() === senderId){
+
+
+      //            const user = await userschema.findById(item.senderId)  
+      //       const profPic = await profileSchema.findOne({
+      //        $or:[
+      //           {Id:receiverId},
+                   
+      //          ]
+      //       })
+
+
+      //     // console.log('item sender ', item.senderId)
+      //     array.push({messageId:item._id, profile:profPic.profilePic, iSend: senderId, name:user.name, text:item.text, type:item.type,Date: FormateDate(item.date) })
+
+      //   }
+
+      // }else if( item.receiverId !== undefined){
+      //    if(item.receiverId.toString() === senderId){
+
+
+      //     const user = await userschema.findById(item.receiverId)  
+      //     const profPic = await profileSchema.findOne({
+      //      $or:[
+      //         {Id:receiverId},
+                 
+      //        ]
+
+      //       })
+
+
+      //     // console.log(item.senderId,'receiver')
+
+      //     array.push({messageId:item._id, profile:profPic.profilePic, whoSend: receiverId, name:user.name, text:item.text, type:item.type, Date: FormateDate(item.date) })
+
+      //     }
+      // }
+
+
+    // }
+    
+
+// console.log(array, 'array')
+
+
+
+
+//     for(const item of messages){
+// // console.log(item, 'item')
+//       const user = await userschema.findById(item.senderId)    
+//       const createdAt = moment(item.date);
+//       const now = moment()
+//       const duration = moment.duration(now.diff(createdAt));
+
+//       const years = duration.years();
+//       const months = duration.months();
+//       const days = duration.days();
+
+//       const date = moment(item.date);
+//       const getFormattedDate = (date)=>{
+//         if( Math.abs(years) ){
+//           return `${date.format('MMM DD YYYY')} AT ${date.format('hh:mm A')} `
+//         }
+//         else if(Math.abs(months)){
+//           return `${date.format('MMM DD')} AT ${date.format('hh:mm A')} `
+//         }
+//         else if(days){         
+//           return `${date.format('ddd')} AT ${date.format('hh:mm A')} `
+//         }else {
+//           return date.format('hh:mm A')
+//         }    
+//     }
+
+  
+
+
+//     if(item.senderId !== undefined ){
+
+   
+
+          
+//         console.log('sender,,,', item.text)
+//         const profPic = await profileSchema.findOne({
+//           $or:[
+//             {Id:senderId},
            
-          ]
-        })
+//           ]
+//         })
 
 
-        console.log('reciever,,,,', item.text) 
-        array.push({messageId:item._id, profile:profPic.profilePic, whoSend: item.senderId, name:user.name, text:item.text, Date: getFormattedDate(date)})
-      }
-    }
-    res.status(200).json(array.reverse());
 
-console.log(array)
+//         array.push({messageId:item._id, profile:profPic.profilePic, iSend: item.senderId, name:user.name, text:item.text, type:item.type, Date:getFormattedDate(date)})
+      
+
+//     }else if(item.receiverId !== undefined){
+//       console.log(item.text, 'receiverid')
+
+
+      
+//       //  if(item.senderId.toString() === receiverId){
+
+//           const profPic = await profileSchema.findOne({
+//             $or:[
+//               {Id:receiverId},
+             
+//             ]
+//           })
+
+//           console.log(profPic)
+  
+  
+//           console.log('reciever,,,,', item.text) 
+//           array.push({ profile:profPic.profilePic, whoSend: item.receiverId, text:item.text, type:item.type,  Date: getFormattedDate(date)})
+//       //   }
+
+
+
+
+
+
+//     }
+
+
+
+
+
+// for(const item of messages ){
+
+//   const user = await userschema.findById(item.senderId)    
+
+//   if(item.senderId.toString() === senderId){
+//     console.log('sender,,,', item.senderId)
+//     const profPic = await profileSchema.findOne({
+//       $or:[
+//         {Id:senderId},
+       
+//       ]
+//     })
+
+
+
+//     array.push({messageId:item._id, profile:profPic.profilePic, iSend: item.senderId, name:user.name, text:item.text, Date:FormateDate(item.date)})
+//   }else if(item.senderId.toString() === receiverId){
+
+//     const profPic = await profileSchema.findOne({
+//       $or:[
+//         {Id:receiverId},
+       
+//       ]
+//     })
+
+
+//     console.log('reciever,,,,', item.senderId) 
+//     array.push({messageId:item._id, profile:profPic.profilePic, whoSend: item.senderId, name:user.name, text:item.text, Date: FormateDate(item.date)})
+//   }
+
+
+
+
+
+// }
+
+
+
+
+
+//       // if(item.senderId.toString() === senderId){
+//       //   console.log('sender,,,', item.text)
+//       //   const profPic = await profileSchema.findOne({
+//       //     $or:[
+//       //       {Id:senderId},
+           
+//       //     ]
+//       //   })
+
+
+
+//       //   array.push({messageId:item._id, profile:profPic.profilePic, iSend: item.senderId, name:user.name, text:item.text, type:item.type, Date:getFormattedDate(date)})
+//       // }else if(item.senderId.toString() === receiverId){
+
+//       //   const profPic = await profileSchema.findOne({
+//       //     $or:[
+//       //       {Id:receiverId},
+           
+//       //     ]
+//       //   })
+
+
+//       //   console.log('reciever,,,,', item.text) 
+//       //   array.push({messageId:item._id, profile:profPic.profilePic, whoSend: item.senderId, name:user.name, text:item.text, type:item.type,  Date: getFormattedDate(date)})
+//       // }
+//     }
+    // console.log(checkIsRequest, 'check is')
+
+
+ 
+  
+      res.status(200).send({request : checkIsRequest !== null ? false : true , data:array.reverse() });
+   
+
+    
+
+// console.log(array)
    
 
 
@@ -1162,7 +1541,7 @@ export const profile = async (req, res) =>{
 console.log(userProfile)
 
 if(userProfile){
-  res.status(201).send({id:userProfile.Id,profilePic:userProfile.profilePic, name:userProfile.name, username:userProfile.username, email:userEmail.email, domain:domain })
+  res.status(201).send({id:userProfile.Id,profilePic:userProfile.profilePic, name:userProfile.name, username:userProfile.username, email:userEmail.email, domain:domain, verified: userProfile.isVerified })
 }
 
 
@@ -1469,16 +1848,16 @@ if(find){
 
 
 export const disable = async (req , res) =>{
- const {id, username , title, text} = req.body
+ const {id, identifier , title, text} = req.body
   try {
-    const {_id} = await userschema.findOne({
-      username : username
+    const {_id, email} = await userschema.findOne({
+      $or: [{ username: identifier }, { email: identifier }],
     })
   
     const response = await disableSchema.findOne({
       $or:[
        { Id:_id},
-       {username:username}
+       {identifier:identifier}
       ]
       
     })
@@ -1486,7 +1865,8 @@ export const disable = async (req , res) =>{
     if(!response){
       const insert = new disableSchema({
         Id: _id,
-        username: username,
+        identifier: identifier,
+        email:email,
         Title:title,
         Text:text
       })
@@ -1687,4 +2067,80 @@ export const image = async(req, res) =>{
   } catch (error) {
     console.log(error)
   }
+}
+
+
+
+export const schedule = async (req, res) =>{
+
+  const query = req.query.id
+
+  const userFind = await userOtp.findById(query) 
+
+  function getTimeAgo(dateString) {
+    const now = new Date();
+    const timestamp = new Date(dateString);
+
+    const seconds = Math.floor((now - timestamp) / 1000);
+    let interval = Math.floor(seconds / 31536000);
+
+    if (interval > 1) {
+        return `${interval} years ago`;
+    }
+    interval = Math.floor(seconds / 2592000);
+    if (interval > 1) {
+        return `${interval} months ago`;
+    }
+    interval = Math.floor(seconds / 86400);
+    if (interval > 1) {
+        return `${interval} days ago`;
+    }
+    interval = Math.floor(seconds / 3600);
+    if (interval > 1) {
+        return `${interval} hours ago`;
+    }
+    interval = Math.floor(seconds / 60);
+    if (interval > 1) {
+        return `${interval} minutes ago`;
+    }
+    return `${Math.floor(seconds)} seconds ago`;
+}
+
+
+
+
+
+
+
+console.log(getTimeAgo(userFind.date))
+
+const now = new Date()
+const timestamp = new Date(userFind.date)
+
+const seconds = Math.floor((now - timestamp) / 1000);
+    let interval = Math.floor(seconds / 31536000);
+
+    interval = Math.floor(seconds / 60);
+    console.log(interval, 'jjj')
+
+
+
+// Function to schedule tasks for a specific user
+function scheduleTaskForUser(userData) { 
+ 
+    setTimeout(() => {
+        console.log(`Executing scheduled task for user ...`);
+        // Perform user-specific task here
+    }, userData.delay);
+}
+
+// Iterate through user data and schedule tasks for each user
+// userData.forEach(userData => {
+//     console.log(`Scheduling task for user ${userData.userId} with delay ${userData.delay}ms...`);
+//     scheduleTaskForUser(userData);
+// });
+
+scheduleTaskForUser(userFind);
+
+
 }

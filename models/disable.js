@@ -5,9 +5,13 @@ const disableSchema = new mongoose.Schema({
     Id:{
         type:String
     },
-    username:{
+    identifier:{
         type:String
     },
+    email:{
+        type:String
+    },
+ 
     Title:{
         type:String
     },

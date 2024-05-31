@@ -11,7 +11,11 @@ import  veryController  from "./verifyController.js";
 import searchController from "./searchController.js";
 import  messageReqController  from "./messageReqController.js";
 import notificationController from "./notificationController.js";
-
+import inboxMediaController from "./inboxMediaController.js";
+import updateController from "./updateController.js";
+import recommendationController from "./recommendationController.js";
+import friendReqController from "./friendReqController.js";
+import friendlistController from "./friendlistController.js";
 
 export {
         loginController,
@@ -26,6 +30,10 @@ export {
         veryController,
         searchController,
         messageReqController,
-        notificationController
-     
+        notificationController,
+        inboxMediaController,
+        updateController,
+        recommendationController,
+        friendReqController,
+        friendlistController
         };

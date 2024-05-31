@@ -11,8 +11,12 @@ let token
 const {authorization, userid} = req.headers
 const paramsId = req.params.userId 
 
+const User = await userschema.findById(paramsId)
+// console.log(User, 'checkuser')
+const checkuser = User !== null
 
-console.log(paramsId)
+
+
 
 if(authorization ){
   try {
@@ -23,7 +27,7 @@ if(authorization ){
    
 console.log(result.id ===userid && paramsId === result.id, 'result')
 
-if(result.id ===userid && paramsId === result.id){
+if(result.id ===userid && paramsId === result.id && checkuser){
   next()
 }else{
   res.status(401).send({'status': 'Unauthorized!'})
