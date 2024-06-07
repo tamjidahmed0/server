@@ -123,7 +123,8 @@ const io = new Server(server, {
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
+// Trust the first proxy
+app.set('trust proxy', true);
 
 //json formate 
 app.use(express.json())

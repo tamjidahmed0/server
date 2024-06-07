@@ -7,7 +7,9 @@ import jwt from "jsonwebtoken";
 //post request for login
 const login = async (req, res) => {
   const domain = req.hostname;
-  const ip = req.ip
+  const forwarded = req.headers['x-forwarded-for'];
+  const ip = forwarded ? forwarded.split(',').shift() : req.ip;
+ 
   try {
     //collect data from body
     const {identifier, username, email, password } = req.body;
