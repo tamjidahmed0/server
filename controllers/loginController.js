@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken";
 //post request for login
 const login = async (req, res) => {
   const domain = req.hostname;
+  const ip = req.ip
   try {
     //collect data from body
     const {identifier, username, email, password } = req.body;
@@ -17,9 +18,9 @@ const login = async (req, res) => {
         $or: [{ username: identifier }, { email: identifier }],
       });
 
-      console.log(user);
+      console.log(user, 'hh');
 
-      if (user) {
+      if (user ) {
         const encPass = await bcrypt.compare(password, user.password);
         if (encPass) {
           const disable = await disableSchema.findOne({
@@ -47,7 +48,7 @@ const login = async (req, res) => {
 
             // res.cookie( resendtoken , { maxAge: 900000, httpOnly: true })
 
-            res.status(201).send({ id: user._id, profile: profilePic, name: `${user.name}`, username: user.username, email: user.email, token: resendtoken, status: 201 });
+            res.status(201).send({ id: user._id, profile: profilePic, name: `${user.name}`, username: user.username, email: user.email, token: resendtoken, requestedIp : ip, status: 201 });
 
             // res.status(201).cookie('token', resendtoken, {httpOnly: true, secure: false, sameSite:'none' }).cookie('c_user', user._id, {httpOnly: true, secure: false, sameSite:'none'})
             // .send({ id: user._id, profile: profilePic, name: `${user.name}`, username: user.username, email: user.email, token: resendtoken, status:201 })
