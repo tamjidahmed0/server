@@ -3,13 +3,34 @@ import profileSchema from "../models/profile.js";
 import disableSchema from "../models/disable.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import path from 'path'
+import { fileURLToPath } from 'url';
+import  {dirname}  from "path"
+import maxmind from "maxmind"
+import { Reader } from '@maxmind/geoip2-node';
+import sendMail from "../mail/sendMail.js";
+import useragent from "useragent";
+
 
 //post request for login
 const login = async (req, res) => {
   const domain = req.hostname;
   const forwarded = req.headers['x-forwarded-for'];
+  const source = req.headers['user-agent'];
+  const agent = useragent.parse(source);
   const ip = forwarded ? forwarded.split(',').shift() : req.ip;
+
+  const __dirname = dirname(fileURLToPath(import.meta.url))
+
  
+// Path to the GeoLite2 database file
+const dbPath = path.join(__dirname, '../geolite/GeoLite2-City.mmdb');
+
+// Open the GeoLite2 database
+Reader.open(dbPath).then(reader => {
+  console.log(reader.city('180.149.232.168'));
+});
+
   try {
     //collect data from body
     const {identifier, username, email, password } = req.body;
@@ -49,6 +70,11 @@ const login = async (req, res) => {
             const profilePic = profile ? profile.profilePic : `${domain}/public/default.jpg`;
 
             // res.cookie( resendtoken , { maxAge: 900000, httpOnly: true })
+
+            // sendOTP(user.email , 'security alert', './mail-template/security-alert.html', null ,user.name  )
+
+      
+
 
             res.status(201).send({ id: user._id, profile: profilePic, name: `${user.name}`, username: user.username, email: user.email, token: resendtoken, requestedIp : ip, status: 201 });
 

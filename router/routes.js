@@ -3,10 +3,11 @@ import authenticate from "../middleware/authenticate.js";
 import tokenMiddleware from "../middleware/tokenMiddleware.js";
 import otpMiddleware from '../middleware/otpMiddleware.js'
 import disableMiddleware from "../middleware/disableMiddleware.js";
+import securityAlert from "../middleware/security-alert-middleware.js"; 
 
 import * as controller from '../controllers/appController.js'
 
-import  {friendlistController, friendReqController, recommendationController,updateController, notificationController ,loginController, registerController, conversationController, otpController , socialController, followersController, followingController, unfollowController, countConnectionController, veryController, searchController, messageReqController} from "../controllers/index.js";
+import  { friendlistController, friendReqController, recommendationController,updateController, notificationController ,loginController, registerController, conversationController, otpController , socialController, followersController, followingController, unfollowController, countConnectionController, veryController, searchController, messageReqController} from "../controllers/index.js";
 import multer from 'multer';
 import {UploadImage} from "../middleware/index.js";
 
@@ -33,7 +34,7 @@ const router = Router();
 router.route('/register').post(registerController)
 router.route('/otp').post(otpMiddleware, otpController)
 router.route('/resendotp').post(controller.resendotp)
-router.route('/login').post( loginController) 
+router.route('/login').post(securityAlert, loginController) 
 
 router.route('/test/:id').post(UploadImage, controller.test ) 
 
