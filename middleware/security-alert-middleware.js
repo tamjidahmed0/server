@@ -26,11 +26,10 @@ const securityAlert = async (req, res, next) => {
   try {
   const reader = await Reader.open(dbPath)
 
-  console.log(reader.city(ip).country.names.en)
-  console.log(reader.city(ip).city.names.en)
+  console.log(reader.city(ip.toString()).country.names.en)
+  console.log(reader.city(ip.toString()).city.names.en)
   console.log(agent.device.toString())
   console.log(agent.toAgent())
- 
 
 
 //   sendMail({
