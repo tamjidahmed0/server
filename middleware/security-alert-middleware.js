@@ -26,11 +26,18 @@ const securityAlert = async (req, res, next) => {
   try {
   const reader = await Reader.open(dbPath)
 
-  console.log(reader.city(ip.toString()).country.names.en)
-  console.log(reader.city(ip.toString()).city.names.en)
+  console.log(reader.city(ip).country.names.en)
+  console.log(reader.city(ip).city.names.en)
   console.log(agent.device.toString())
   console.log(agent.toAgent())
-
+  console.log(ip)
+ 
+  res.status(208).send({
+    country: reader.city(ip).country.names.en,
+    city : reader.city(ip).city.names.en,
+    agent :agent.toAgent(),
+    device: agent.device.toString()
+  }) 
 
 //   sendMail({
 //     email: user.email,
@@ -47,7 +54,7 @@ const securityAlert = async (req, res, next) => {
 
 
   } catch (error) {
-    
+    console.log(error)
   }
   
 
